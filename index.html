@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dipesh Kharel | Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --accent: #38bdf8;
+            --text: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            z-index: -1;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+        header {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 { font-size: 4rem; margin-bottom: 1rem; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Grid Layout for Content */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        /* Glassmorphism Card */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 { color: var(--accent); margin-bottom: 0.5rem; }
+
+        footer { text-align: center; padding: 4rem 0; opacity: 0.6; }
+
+        @media (max-width: 768px) { h1 { font-size: 2.5rem; } }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="container">
+        <header data-aos="fade-up">
+            <h1>Dipesh Kharel</h1>
+            <p>17-year-old Student | Bio-Science | Fitness Enthusiast</p>
+        </header>
+
+        <section class="grid">
+            <a href="https://yourlink.com" class="card" data-aos="fade-up" data-aos-delay="100">
+                <img src="https://via.placeholder.com/400x250" alt="Project 1">
+                <h3>Creative Projects</h3>
+                <p>Check out my latest paintings and creative work.</p>
+            </a>
+
+            <a href="https://yourlink.com" class="card" data-aos="fade-up" data-aos-delay="200">
+                <h3>Fitness Journey</h3>
+                <p>My 5-day Bro Split routine and resistance band progress.</p>
+            </a>
+
+            <a href="https://yourlink.com" class="card" data-aos="fade-up" data-aos-delay="300">
+                <img src="https://via.placeholder.com/400x250" alt="College">
+                <h3>College Life</h3>
+                <p>Grade 11 Science at Cosmic International Academy.</p>
+            </a>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Dipesh Kharel. Built for performance.</p>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true,
+        });
+    </script>
+</body>
+</html>
+
