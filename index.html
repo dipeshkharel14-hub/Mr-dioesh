@@ -13,45 +13,41 @@
             background-color: #fcfaf7; 
             color: #1a1a1a; 
             scroll-behavior: smooth;
-            opacity: 0; /* Prevents blank flash, triggered by JS below */
-            transition: opacity 1s ease-in;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
         }
-        
         .loaded { opacity: 1; }
 
-        /* Enhanced Organic Shapes */
+        @keyframes flashRed {
+            0%, 100% { background-color: #fcfaf7; }
+            50% { background-color: #ff4d4d; }
+        }
+        .error-blink { animation: flashRed 0.4s linear 5; }
+
         .organic-shape {
             border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
             overflow: hidden;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             display: block;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        .organic-shape:hover { 
-            border-radius: 50%; 
-            transform: scale(1.03) rotate(2deg);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-        }
+        .organic-shape:hover { border-radius: 50%; transform: scale(1.03) rotate(2deg); }
 
-        .clickable-card {
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .clickable-card:hover { transform: translateY(-12px) scale(1.02); filter: brightness(1.1); }
+        .clickable-card { transition: all 0.4s ease; }
+        .clickable-card:hover { transform: translateY(-8px); filter: brightness(1.1); }
 
-        .dark-section { 
-            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
-            color: white; 
-        }
+        .dark-section { background: linear-gradient(145deg, #1a1a1a, #2a2a2a); color: white; }
 
-        /* Loading Spinner */
         #loader {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #fcfaf7;
-            z-index: 100;
+            position: fixed; inset: 0;
+            display: flex; justify-content: center; align-items: center;
+            background: #fcfaf7; z-index: 1000;
+        }
+
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8); z-index: 2000;
+            align-items: center; justify-content: center; padding: 20px;
         }
     </style>
 </head>
@@ -61,15 +57,51 @@
         <div class="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
+    <div id="inquiryModal" class="modal">
+        <div class="bg-white p-8 rounded-3xl max-w-md w-full shadow-2xl">
+            <h2 class="text-2xl font-bold mb-4">Access Verification</h2>
+            <p class="text-sm text-gray-500 mb-6">Enter details to continue to special content.</p>
+            <input type="text" id="authName" placeholder="Full Name" class="w-full p-4 mb-4 border rounded-xl outline-yellow-500">
+            <input type="text" id="authPhone" placeholder="Phone Number" class="w-full p-4 mb-6 border rounded-xl outline-yellow-500">
+            <button onclick="verifyAccess()" class="w-full bg-yellow-500 text-black font-bold py-4 rounded-xl hover:bg-black hover:text-white transition">Verify Identity</button>
+            <button onclick="closeModal('inquiryModal')" class="w-full mt-4 text-gray-400 text-sm">Cancel</button>
+        </div>
+    </div>
+
+    <div id="canvasModal" class="modal">
+        <div class="bg-white p-8 rounded-3xl max-w-5xl w-full h-[85vh] overflow-y-auto relative">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold">Public Digital Canvas</h2>
+                    <p class="text-sm text-gray-400">Add files. Anyone can search or delete items.</p>
+                </div>
+                <button onclick="closeModal('canvasModal')" class="text-4xl font-light hover:text-red-500 transition">&times;</button>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 mb-8">
+                <input type="text" id="canvasSearch" onkeyup="filterCanvas()" placeholder="Search files by name..." class="flex-1 p-4 border border-gray-200 rounded-xl outline-yellow-500 shadow-sm">
+                
+                <input type="file" id="fileUpload" class="hidden" multiple onchange="handleFileUpload(this)">
+                <label for="fileUpload" class="cursor-pointer bg-yellow-500 text-black px-6 py-4 rounded-xl font-bold flex items-center justify-center hover:bg-black hover:text-white transition">
+                    + Add New File
+                </label>
+            </div>
+
+            <div id="canvasGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                </div>
+            <div id="noResults" class="hidden text-center py-20 text-gray-400">No files match your search.</div>
+        </div>
+    </div>
+
     <header class="h-screen flex flex-col items-center justify-center text-center px-4 bg-slate-100 relative overflow-hidden">
-        <div class="mb-8" data-aos="zoom-in" data-aos-duration="1200">
-            <a href="https://dipeshkharel14-hub.github.io/dipesh-kharel/">
+        <div class="mb-8" data-aos="zoom-in" data-aos-duration="800">
+            <a href="https://dipeshkharel.qzz.io">
                 <img src="IMG_20260210_154148.png" alt="MD Logo" class="w-28 h-28 object-contain hover:rotate-12 transition-transform">
             </a>
             <p class="text-xs uppercase tracking-[0.3em] mt-4 font-bold opacity-60">Creative Portfolio</p>
         </div>
 
-        <div class="z-10" data-aos="fade-up" data-aos-delay="300">
+        <div class="z-10" data-aos="fade-up" data-aos-delay="200">
             <h1 class="text-6xl md:text-9xl font-extrabold mb-6 tracking-tighter">
                 The Future <br><span class="text-yellow-600 italic">of Education</span>
             </h1>
@@ -77,26 +109,28 @@
                 <a href="#explore" class="bg-yellow-500 text-black px-10 py-4 rounded-full font-bold text-lg hover:bg-black hover:text-white transition-all shadow-2xl">
                     Open Explore
                 </a>
+                <button onclick="openModal('canvasModal')" class="bg-white text-black border border-black/10 px-10 py-4 rounded-full font-bold text-lg hover:bg-yellow-500 transition-all shadow-xl">
+                    Public Canvas
+                </button>
             </div>
         </div>
-        
         <div class="absolute -top-20 -right-20 w-80 h-80 bg-yellow-200 rounded-full blur-[120px] opacity-40 animate-pulse"></div>
     </header>
 
     <section id="explore" class="py-32 px-8 max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
-        <div data-aos="fade-right" data-aos-duration="1000">
+        <div data-aos="fade-right">
             <h2 class="text-5xl font-bold text-yellow-600 mb-6">Step into your future</h2>
             <p class="text-gray-500 text-xl mb-10 leading-relaxed">
                 Experience education like never before. I am crafting a digital world at <strong>Cosmic International Academy</strong> that bridges science and technology.
             </p>
-            <a href="https://dipeshkharel14-hub.github.io/Something-to-say/" class="group relative inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-full font-bold overflow-hidden transition-all">
+            <button onclick="openModal('inquiryModal')" class="group relative inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-full font-bold overflow-hidden transition-all">
                 <span class="relative z-10">Discover More</span>
                 <div class="absolute inset-0 bg-yellow-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            </a>
+            </button>
         </div>
-        <div class="relative" data-aos="fade-left" data-aos-duration="1000">
+        <div class="relative" data-aos="fade-left">
             <div class="absolute inset-0 bg-yellow-500 rounded-3xl rotate-3 -z-10 opacity-20"></div>
-            <img src="https://via.placeholder.com/600x400" alt="Education Illustration" class="w-full rounded-3xl shadow-2xl">
+            <img src="https://via.placeholder.com/600x400" alt="Education" class="w-full rounded-3xl shadow-2xl">
         </div>
     </section>
 
@@ -109,7 +143,7 @@
                 <h3 class="text-3xl font-bold italic tracking-tight">Botanical Garden Visit</h3>
                 <p class="text-gray-400 mt-2">Captured Moments</p>
             </div>
-            <div class="group" data-aos="zoom-in-left" data-aos-delay="200">
+            <div class="group" data-aos="zoom-in-left">
                 <a href="https://dipeshkharel14-hub.github.io/many-many-happy-returns-of-the-day.../" class="organic-shape aspect-square bg-gray-100 mb-8 overflow-hidden">
                     <img src="IMG_20260124_121801.png" alt="Birthday" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                 </a>
@@ -120,31 +154,21 @@
     </section>
 
     <section class="py-32 px-8 dark-section">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col items-center mb-20 text-center">
-                <h2 class="text-5xl font-bold mb-4" data-aos="fade-down">My Digital Collection</h2>
-                <div class="w-24 h-1 bg-yellow-500 rounded-full"></div>
-            </div>
-            
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-5xl font-bold mb-10" data-aos="fade-down">Digital Collection</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <div data-aos="fade-up" data-aos-delay="100">
-                    <a href="https://dipeshkharel14-hub.github.io/mr-dipesh/" class="block clickable-card">
-                        <img src="IMG_20250717_104433.jpg" class="h-80 w-full object-cover rounded-2xl mb-6 shadow-2xl border border-white/10">
-                        <h3 class="text-2xl font-bold text-yellow-500">Data</h3>
-                    </a>
-                </div>
-                <div data-aos="fade-up" data-aos-delay="200">
-                    <a href="https://dipeshkharel14-hub.github.io/open_system/" class="block clickable-card">
-                        <img src="IMG_20260210_154148.png" class="h-80 w-full object-cover rounded-2xl mb-6 shadow-2xl border border-white/10">
-                        <h3 class="text-2xl font-bold text-green-500">Hacking Screen</h3>
-                    </a>
-                </div>
-                <div data-aos="fade-up" data-aos-delay="300">
-                    <a href="https://codepen.io/Dipesh-Kharel-the-sans/pen/KwMEGyL" class="block clickable-card">
-                        <img src="file_000000004c6471fdafee4839b7cf0ef9.png" class="h-80 w-full object-cover rounded-2xl mb-6 shadow-2xl border border-white/10">
-                        <h3 class="text-2xl font-bold text-blue-400">Jarvis AI</h3>
-                    </a>
-                </div>
+                <a href="https://dipeshkharel.qzz.io/mr-dipesh/" class="block clickable-card" data-aos="fade-up" data-aos-delay="100">
+                    <img src="IMG_20250717_104433.png" class="h-80 w-full object-cover rounded-2xl mb-4 border border-white/10 shadow-2xl">
+                    <h3 class="text-xl font-bold text-yellow-500">Data Vault</h3>
+                </a>
+                <a href="https://dipeshkharel14-hub.github.io/open_system/" class="block clickable-card" data-aos="fade-up" data-aos-delay="200">
+                    <img src="IMG_20260210_154148.png" class="h-80 w-full object-cover rounded-2xl mb-4 border border-white/10 shadow-2xl">
+                    <h3 class="text-xl font-bold text-green-500">Hacking Screen</h3>
+                </a>
+                <a href="https://codepen.io/Dipesh-Kharel-the-sans/pen/KwMEGyL" class="block clickable-card" data-aos="fade-up" data-aos-delay="300">
+                    <img src="filw_000000004c6471fdafee4839b7cf0ef9.png" class="h-80 w-full object-cover rounded-2xl mb-4 border border-white/10 shadow-2xl">
+                    <h3 class="text-xl font-bold text-blue-400">Jarvis AI</h3>
+                </a>
             </div>
         </div>
     </section>
@@ -152,25 +176,29 @@
     <section class="py-32 px-8 max-w-7xl mx-auto">
         <h2 class="text-5xl font-bold mb-16" data-aos="fade-right">Personal Space</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="overflow-hidden rounded-2xl shadow-lg" data-aos="zoom-in" data-aos-delay="100">
-                <img src="IMG_20250716_175344.jpg" class="h-80 w-full object-cover hover:scale-110 transition-transform duration-500">
-            </div>
-            <div class="overflow-hidden rounded-2xl shadow-lg" data-aos="zoom-in" data-aos-delay="200">
-                <img src="IMG_20250718_134847.jpg" class="h-80 w-full object-cover hover:scale-110 transition-transform duration-500">
-            </div>
-            <div class="overflow-hidden rounded-2xl shadow-lg" data-aos="zoom-in" data-aos-delay="300">
-                <img src="IMG_20260131_110243.png" class="h-80 w-full object-cover hover:scale-110 transition-transform duration-500">
-            </div>
-            <div class="overflow-hidden rounded-2xl shadow-lg" data-aos="zoom-in" data-aos-delay="400">
-                <img src="file_000000004c6471fdafee4839b7cf0ef9.png" class="h-80 w-full object-cover hover:scale-110 transition-transform duration-500">
-            </div>
+            <a href="#" class="block clickable-card group" data-aos="zoom-in" data-aos-delay="100">
+                <img src="IMG_20250716_175344.jpg" class="h-80 w-full object-cover rounded-2xl group-hover:scale-105 transition shadow-lg">
+                <p class="mt-4 font-bold text-gray-400">MEMORY 01</p>
+            </a>
+            <a href="#" class="block clickable-card group" data-aos="zoom-in" data-aos-delay="200">
+                <img src="IMG_20250718_134847.jpg" class="h-80 w-full object-cover rounded-2xl group-hover:scale-105 transition shadow-lg">
+                <p class="mt-4 font-bold text-gray-400">MEMORY 02</p>
+            </a>
+            <a href="#" class="block clickable-card group" data-aos="zoom-in" data-aos-delay="300">
+                <img src="IMG_20260131_110243.png" class="h-80 w-full object-cover rounded-2xl group-hover:scale-105 transition shadow-lg">
+                <p class="mt-4 font-bold text-gray-400">MEMORY 03</p>
+            </a>
+            <a href="#" class="block clickable-card group" data-aos="zoom-in" data-aos-delay="400">
+                <img src="filw_000000004c6471fdafee4839b7cf0ef9.png" class="h-80 w-full object-cover rounded-2xl group-hover:scale-105 transition shadow-lg">
+                <p class="mt-4 font-bold text-gray-400">MEMORY 04</p>
+            </a>
         </div>
     </section>
 
     <footer class="bg-black text-white py-32 px-8 text-center">
         <div data-aos="fade-up">
             <h2 class="text-4xl font-bold mb-8 italic">Let's build the future.</h2>
-            <a href="mailto:dipeshkharel14@gmail.com" class="group relative bg-yellow-500 text-black px-12 py-5 rounded-full font-bold text-xl inline-block hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all">
+            <a href="mailto:dipeshkharel14@gmail.com" class="bg-yellow-500 text-black px-12 py-5 rounded-full font-bold text-xl inline-block hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all">
                 Send a Message
             </a>
             <div class="mt-20 opacity-30 text-xs tracking-[0.5em] uppercase">
@@ -181,18 +209,90 @@
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        // Fix for "Blank Screen" - wait for all assets
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function verifyAccess() {
+            const name = document.getElementById('authName').value.trim();
+            const phone = document.getElementById('authPhone').value.trim();
+            if (name === "Dipesh Kharel" && phone === "9860469218") {
+                window.location.href = "https://dipeshkharel14-hub.github.io/Something-to-say/";
+            } else {
+                closeModal('inquiryModal');
+                document.body.classList.add('error-blink');
+                alert("No entry for you sorry, it is only for special person.");
+                setTimeout(() => {
+                    document.body.classList.remove('error-blink');
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }, 2000);
+            }
+        }
+
+        // Search/Filter Function
+        function filterCanvas() {
+            const query = document.getElementById('canvasSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.canvas-card');
+            let hasVisible = false;
+
+            cards.forEach(card => {
+                const fileName = card.getAttribute('data-filename').toLowerCase();
+                if (fileName.includes(query)) {
+                    card.style.display = 'block';
+                    hasVisible = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('noResults').style.display = hasVisible ? 'none' : 'block';
+        }
+
+        function handleFileUpload(input) {
+            const gallery = document.getElementById('canvasGallery');
+            const files = input.files;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                const fileID = 'file-' + Date.now() + '-' + i;
+
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.id = fileID;
+                    div.className = "canvas-card relative bg-gray-50 rounded-2xl p-4 shadow-md border border-gray-100 group";
+                    div.setAttribute('data-filename', file.name);
+                    
+                    let preview = '';
+                    if (file.type.startsWith('image/')) {
+                        preview = `<img src="${e.target.result}" class="w-full h-48 object-cover rounded-xl">`;
+                    } else if (file.type.startsWith('video/')) {
+                        preview = `<div class="w-full h-48 bg-black rounded-xl flex items-center justify-center text-white text-xs text-center px-4">Video:<br>${file.name}</div>`;
+                    } else {
+                        preview = `<div class="w-full h-48 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500 font-bold uppercase">PDF / DOC</div>`;
+                    }
+
+                    div.innerHTML = `
+                        ${preview}
+                        <div class="mt-3 flex justify-between items-center">
+                            <span class="text-xs font-bold truncate pr-4">${file.name}</span>
+                            <button onclick="document.getElementById('${fileID}').remove(); filterCanvas();" class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-700 transition shadow-lg">
+                                &times;
+                            </button>
+                        </div>
+                    `;
+                    gallery.appendChild(div);
+                    filterCanvas(); // Update search view after add
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         window.addEventListener('load', function() {
             document.getElementById('loader').style.display = 'none';
             document.body.classList.add('loaded');
-            
-            AOS.init({ 
-                duration: 1000, 
-                once: false,
-                mirror: true,
-                offset: 50
-            });
+            AOS.init({ duration: 600, once: false, offset: 20 });
         });
     </script>
 </body>
-</html>
+                </html>
+                    
